@@ -1,0 +1,33 @@
+Aluno 1: Antônio Airton Rodrigues Junior
+
+O que fez no projeto:
+
+Fiz as classes Item.java, Inventario.java, Jogo.java, SistemaDeCombate.java, Personagem.java
+Fiz a sobreescrita de todos os metodos das classes
+
+Autoavaliação: 10
+
+
+
+Aluno 2: Luis Felipe Cintra Braga
+
+O que fez no projeto:
+
+Fiz as classes Mago.java, Arqueiro.java, Guerreiro.java, Inimigo.java
+Ajudei na classe Personagem.java com construtores, atributos, getters e setters e menus
+Ajudei na classe item.java com setters e getters
+Ajudei nos meus de jogo.java
+Realizei testes
+
+Autoavaliação: 8
+
+
+
+Aluno 3: Gabriel Lopes Londe Rodrigues
+
+O que fez no projeto:
+
+Fiz as classes Dado.java, Main.java, SistemaDeCombate.java
+Ajudei na classe SistemaDeCombate.java no metodo batalhar, ajudei na lógica da rolagem de dados e menus, 
+
+Autoavaliação: 7

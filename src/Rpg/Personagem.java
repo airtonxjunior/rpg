@@ -1,5 +1,7 @@
 package Rpg;
 
+//abstract pq não é possivel dar new Personagem
+//personagem é apenas um molde
 public abstract class Personagem implements Cloneable {
     private String nome;
     private int pontosVida;
@@ -9,10 +11,11 @@ public abstract class Personagem implements Cloneable {
     private int nivel;
     private Inventario inventario;
 
-    // --- NOVOS ATRIBUTOS PARA NÍVEL ---
+
     private int experiencia;
     private int xpParaProximoNivel;
 
+    //construtor padrao
     public Personagem(String nome, int vida, int ataque, int defesa, int nivel) {
         this.nome = nome;
         this.pontosVida = vida;
@@ -21,12 +24,11 @@ public abstract class Personagem implements Cloneable {
         this.defesa = defesa;
         this.nivel = nivel;
         this.inventario = new Inventario();
-
-        // --- INICIALIZAÇÃO DO NÍVEL ---
         this.experiencia = 0;
-        this.xpParaProximoNivel = 100 * nivel; // (Ex: Nível 1 precisa de 100 XP)
+        this.xpParaProximoNivel = 100 * nivel; 
     }
 
+    //construtor de copia
     public Personagem(Personagem original) {
         this.nome = original.nome;
         this.pontosVida = original.pontosVida;
@@ -34,14 +36,16 @@ public abstract class Personagem implements Cloneable {
         this.ataque = original.ataque;
         this.defesa = original.defesa;
         this.nivel = original.nivel;
+        
+        //clone no inventario pq ele é objeto
         this.inventario = original.inventario.clone();
 
-        // --- COPIA DOS ATRIBUTOS DE NÍVEL ---
+
         this.experiencia = original.experiencia;
         this.xpParaProximoNivel = original.xpParaProximoNivel;
     }
 
-    // --- Getters ---
+    //getters
     public String getNome() { return this.nome; }
     public int getPontosVida() { return this.pontosVida; }
     public int getAtaque() { return this.ataque; }
@@ -49,30 +53,27 @@ public abstract class Personagem implements Cloneable {
     public int getNivel() { return this.nivel; }
     public Inventario getInventario() { return this.inventario; }
     public int getPontosVidaMax() { return this.pontosVidaMax; }
-    // Getter para o XP (útil para o toString)
     public int getExperiencia() { return this.experiencia; }
     public int getXPParaProximoNivel() { return this.xpParaProximoNivel; }
 
 
-    // --- Setters (para buffs) ---
+    //setters
     public void setDefesa(int defesa) { this.defesa += defesa; }
     public void setAtaque(int ataque) { this.ataque += ataque; }
-    // Este setNivel não deve ser público, o nível sobe via ganharXP()
-    // public void setNivel(int nivel){ this.nivel += nivel; }
 
-    // --- Lógica de Nível (MÉTODO NOVO) ---
-    public void ganharXP(int xpGanha) {
-        this.experiencia += xpGanha;
-        System.out.println("  " + this.nome + " ganhou " + xpGanha + " de XP!");
 
-        // Verifica se subiu de nível
+
+    public void ganharXP(int xpGanho) {
+        this.experiencia += xpGanho;
+        System.out.println("  " + this.nome + " ganhou " + xpGanho + " de XP!");
+
+        //verifica se subiu de nível
         while (this.experiencia >= this.xpParaProximoNivel) {
-            // 1. Sobe de Nível
             this.nivel++;
-            // 2. Tira o XP usado para subir
+            //tira o xp usado para subir
             this.experiencia -= this.xpParaProximoNivel; 
             
-            // 3. Aumenta os atributos (exemplo simples)
+            //aumenta os atributos
             int bonusVida = 10;
             int bonusAtk = 3;
             int bonusDef = 2;
@@ -81,13 +82,13 @@ public abstract class Personagem implements Cloneable {
             this.ataque += bonusAtk;
             this.defesa += bonusDef;
             
-            // 4. Recupera toda a vida
+            // recupera toda a vida pq subiu de nivel
             this.pontosVida = this.pontosVidaMax; 
             
-            // 5. Define a próxima meta de XP
+            //define a próxima meta de xp
             this.xpParaProximoNivel = 100 * this.nivel;
 
-            // 6. Avisa o jogador!
+
             System.out.println("  ================================");
             System.out.println("   " + this.nome + " SUBIU PARA O NÍVEL " + this.nivel + "!");
             System.out.println("   HP Máx: +" + bonusVida + " | Ataque: +" + bonusAtk + " | Defesa: +" + bonusDef);
@@ -97,16 +98,20 @@ public abstract class Personagem implements Cloneable {
     }
 
 
-    // --- Métodos de Combate (isVivo, receberAtaque, curar) ---
+
     public boolean isVivo() {
         return this.pontosVida > 0;
     }
 
     public void receberAtaque(int ataqueBruto) {
+        //cria a variavel dano, que subtrai o ataque recebido pela defesa
         int dano = ataqueBruto - this.getDefesa();
+        
+        //se der dano negativo, então dá 0
         if (dano < 0) {
-            dano = 0; // A sua lógica de permitir 0 de dano
+            dano = 0; 
         }
+        //subtrai a vida pelo dano recebido
         this.pontosVida -= dano;
 
         if (dano > 0) {
@@ -126,7 +131,7 @@ public abstract class Personagem implements Cloneable {
         int novaVida = this.getPontosVida() + vida;
         
         if (novaVida > this.getPontosVidaMax()) {
-            // Se a cura for 20, mas o HP só faltar 5, cura 5.
+            //se a cura for 20, mas o HP só faltar 5, cura 5.
             vidaCurada = this.pontosVidaMax - this.getPontosVida();
             this.pontosVida = this.pontosVidaMax;
         } else {
@@ -140,7 +145,7 @@ public abstract class Personagem implements Cloneable {
         }
     }
 
-    // --- toString (Atualizado com XP) ---
+
     @Override
     public String toString() {
         return String.format(
@@ -150,7 +155,7 @@ public abstract class Personagem implements Cloneable {
         );
     }
 
-    // --- clone (Perfeito) ---
+
     @Override
     public Personagem clone() {
         try {
