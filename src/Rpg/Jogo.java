@@ -35,7 +35,7 @@ public class Jogo {
             e.printStackTrace();
         } finally {
             scanner.close();
-            System.out.println("O jogo foi encerrado.");
+            System.out.println("\nO jogo foi encerrado.");
         }
     }
     
@@ -67,7 +67,7 @@ public class Jogo {
                     andarAtual = andarSalvo; 
                     
                     System.out.println("Você acorda... pronto para tentar novamente...");
-                    loopPrincipalDoJogo(); 
+                    loopPrincipalDoJogo(); //reinicia o loop do jogo
                 
                 } else {
                     System.out.println(jogador.getNome() + " foi derrotado. A masmorra reclama mais uma alma...");
@@ -89,7 +89,7 @@ public class Jogo {
         while (escolha < 1 || escolha > 3) {
             System.out.println("\nEscolha a sua classe:");
             System.out.println("1. Guerreiro (Vida: 150, Def: 15, Atk: 10)");
-            System.out.println("2. Mago      (Vida: 80,  Def: 5,  Atk: 20)");
+            System.out.println("2. Mago     (Vida: 80,  Def: 5,  Atk: 20)");
             System.out.println("3. Arqueiro  (Vida: 100, Def: 10, Atk: 15)");
             System.out.print("Digite 1, 2 ou 3: ");
 
@@ -131,8 +131,8 @@ public class Jogo {
 
     //menu de escolhas
     private static void mostrarMenuPrincipal() {
-        System.out.println("\n--- Andar " + andarAtual + " --- O que fazer? ---");
-        System.out.println("1. Explorar o próximo corredor");
+        System.out.println("\n\n--- Andar " + andarAtual + " --- O que fazer? ---");
+        System.out.println("1. Explorar este andar");
         System.out.println("2. Ver Inventário / Usar Item");
         System.out.println("3. Ver Status do Personagem");
         System.out.println("4. Sair do Jogo (Desistir)");
@@ -152,18 +152,18 @@ public class Jogo {
                     verStatus(); 
                     break;
                 case 4:
-                    System.out.println("Você foge da masmorra... (Covarde!)");
+                    System.out.println("\nVocê foge da masmorra... (Covarde!)");
                     jogador.receberAtaque(jogador.getPontosVidaMax() * 10);
                     break;
                 case 5:
                     salvarJogo();
                     break;
                 default:
-                    System.out.println("Opção inválida.");
+                    System.out.println("\nOpção inválida.");
                     break;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Input inválido. Por favor, digite um número.");
+            System.out.println("\nInput inválido. Por favor, digite um número.");
         }
     }
     
@@ -175,58 +175,154 @@ public class Jogo {
         System.out.println("Jogo Salvo! (Andar " + andarSalvo + ")");
     }
 
+
+
     private static void explorar() {
-        System.out.println("\nVocê avança... O corredor se divide em dois.");
-        System.out.println("1. Caminho da Esquerda (escuro e húmido)");
-        System.out.println("2. Caminho da Direita (com ossos espalhados)");
-        System.out.print("Escolha (1-2): ");
-
-        try {
-            Integer.parseInt(scanner.nextLine()); 
-        } catch (Exception e) {}
-        
-        System.out.println("Você segue pelo caminho escolhido...");
-
         if (andarAtual == ANDAR_FINAL_CHEFE) {
-            encontrarChefe();
-            return; 
+            explorarAndar5_Chefe();
+            return;
         }
 
-        int chance = random.nextInt(100); 
-
-        if (chance < 40) { //40%
-            encontrarInimigo();
-        } else if (chance < 70) { //30%
-            encontrarItem();
-        } else if (chance < 85) { //15%
-            encontrarArmadilha();
-        } else { //15%
-            System.out.println("O corredor está silencioso e vazio... por enquanto.");
+        //cada andar tem seus próprios eventos
+        switch (andarAtual) {
+            case 1:
+                explorarAndar1_Goblins();
+                break;
+            case 2:
+                explorarAndar2_Cripta();
+                break;
+            case 3:
+                explorarAndar3_Cavernas();
+                break;
+            case 4:
+                explorarAndar4_Forja();
+                break;
+            default:
+                //andares aleatórios depois do 5
+                explorarAndarGenerico(); 
+                break;
         }
         
         //jogador sobreviveu a exploração
         if (jogador.isVivo()) {
             andarAtual++;
-            System.out.println(jogador.getNome() + " desce para o " + andarAtual + "º andar.");
+            System.out.println("\n" + jogador.getNome() + " desce para o " + andarAtual + "º andar.");
         }
     }
 
-    private static void encontrarChefe() {
+    private static void explorarAndar1_Goblins() {
+        System.out.println("\nVocê está no Salões dos Goblins. O lugar cheira mal.");
+        System.out.println("Você vê duas passagens:");
+        System.out.println("1. Investigar um acampamento goblin barulhento.");
+        System.out.println("2. Seguir por um túnel lateral silencioso.");
+        System.out.print("Escolha (1-2): ");
+        String escolha = scanner.nextLine();
+        System.out.println();
+
+        if (escolha.equals("1")) {
+            System.out.println("Você chuta a porta do acampamento! Eles estão surpresos!");
+            encontrarInimigo("Goblin Batedor", 50, 8, 5, 1, 50, "Poção de Cura Pequena", 50);
+        } else {
+            System.out.println("Você segue pelo túnel silencioso...");
+            int chance = random.nextInt(100);
+            if (chance < 40) {
+                System.out.println("...e encontra um baú de goblin mal trancado!");
+                encontrarItem("Pedra de Defesa", "Aumenta permanentemente a Defesa em 1.", "BUFF_DEFESA:1", 1);
+            } else if (chance < 70) {
+                System.out.println("...e pisa numa armadilha de corda!");
+                encontrarArmadilha(5, 10, "Uma rede cai e você se corta para sair!");
+            } else {
+                System.out.println("...o túnel dá numa passagem segura para o próximo andar.");
+            }
+        }
+    }
+
+    private static void explorarAndar2_Cripta() {
+        System.out.println("\nVocê desce para uma Cripta Empoeirada. O ar está parado.");
+        System.out.println("Você vê um sarcófago ornamentado no centro da sala.");
+        System.out.println("1. Abrir o sarcófago (Pegar uma bolsa no chão).");
+        System.out.println("2. Ignorar o sarcófago e procurar a saída.");
+        System.out.print("Escolha (1-2): ");
+        String escolha = scanner.nextLine();
+        System.out.println();
+
+        if (escolha.equals("1")) {
+            System.out.println("Você força a tampa de pedra... O som ecoa.");
+            int chance = random.nextInt(100);
+            if (chance < 50) {
+                System.out.println("...e um Esqueleto se levanta para atacar!");
+                encontrarInimigo("Esqueleto Guardião", 80, 10, 8, 2, 75, "Pergaminho de Ataque", 30);
+            } else {
+                System.out.println("...e dentro você encontra um pergaminho antigo!");
+                encontrarItem("Pergaminho de Ataque", "Aumenta permanentemente o Ataque em 2.", "BUFF_ATAQUE:2", 1);
+            }
+        } else {
+            System.out.println("Você sabiamente ignora os mortos e procura a escada...");
+            System.out.println("A passagem para o próximo andar está logo à frente.");
+        }
+    }
+
+    private static void explorarAndar3_Cavernas() {
+        System.out.println("\nAs escadas terminam numa Caverna de Cogumelos húmida.");
+        System.out.println("Você vê um brilho estranho vindo de uma poça d'água.");
+        System.out.println("1. Beber da poça brilhante.");
+        System.out.println("2. Ignorar a poça e seguir rastros de Orcs.");
+        System.out.print("Escolha (1-2): ");
+        String escolha = scanner.nextLine();
+        System.out.println();
+
+        if (escolha.equals("1")) {
+            System.out.println("Você bebe a água... Ela tem um gosto metálico.");
+            int chance = random.nextInt(100);
+            if (chance < 50) {
+                System.out.println("Você se sente revigorado! (HP Máx +20!)");
+                jogador.setPontosVidaMax(20); 
+            } else {
+                System.out.println("Você se sente enjoado...");
+                jogador.receberAtaque(15 + jogador.getDefesa()); //dano ignora defesa
+            }
+        } else {
+            System.out.println("Você segue os rastros e encontra um bando de Orcs!");
+            encontrarInimigo("Orc Brutamontes", 120, 15, 10, 3, 120, "Poção de Cura Pequena", 70);
+        }
+    }
+
+    private static void explorarAndar4_Forja() {
+        System.out.println("\nVocê sente o calor da Forja Abandonada dos Anões.");
+        System.out.println("Há uma bigorna antiga numa sala e uma porta de aço na outra.");
+        System.out.println("1. Investigar a bigorna.");
+        System.out.println("2. Tentar arrombar a porta de aço.");
+        System.out.print("Escolha (1-2): ");
+        String escolha = scanner.nextLine();
+        System.out.println();
+
+        if (escolha.equals("1")) {
+            System.out.println("Você se aproxima da bigorna e encontra um item esquecido!");
+            encontrarItem("Elixir de Vigor", "Cura 50 HP.", "CURA:50", 1);
+        } else {
+            System.out.println("Você força a porta de aço... e ela range abrindo!");
+            System.out.println("Era uma armadilha! Gás venenoso enche a sala!");
+            encontrarArmadilha(20, 30, "O gás queima seus pulmões!");
+        }
+    }
+    
+    private static void explorarAndar5_Chefe() {
         System.out.println("\n=======================================================");
         System.out.println("  Você entra numa câmara vasta! O ar está pesado.");
         System.out.println("  No centro, guardando o Amuleto de Yendor, está o...");
-        System.out.println("  REI GOBLIN MONTADO NUM WARG GIGANTE!");
+        System.out.println("  O TEMIDO REI GOBLIN!!");
         System.out.println("=======================================================");
         
         //cria o inimigo
-        Inimigo chefe = new Inimigo("Rei Goblin", 300, 20, 15, 10, 1000);
+        Inimigo chefe = new Inimigo("Rei Goblin", 150, 20, 13, 10, 1000); 
         
         try {
             chefe.getInventario().adicionar(new Item("Poção de Cura Grande", "Cura 100 HP.", "CURA:100", 2));
+            chefe.getInventario().adicionar(new Item("Amuleto de Yendor (Falso?)", "Um amuleto brilhante.", "QUEST", 1));
         } catch (Exception e) {} 
         
         //faz a batalha
-        boolean vitoria = SistemaDeCombate.batalhar(jogador, chefe); // Mantido "SistemaDeCombate"
+        boolean vitoria = SistemaDeCombate.batalhar(jogador, chefe); 
 
         if (vitoria) {
             jogoGanho = true; 
@@ -234,27 +330,36 @@ public class Jogo {
             //clona o inventario do inimigo
             Inventario loot = chefe.getInventario().clone();
             if (!loot.estaVazio()) {
-                System.out.println("Você saqueia o trono do Rei Goblin:");
+                System.out.println("\nVocê saqueia o trono do Rei Goblin:");
                 loot.listarItens();
                 jogador.getInventario().adicionarItens(loot);
             }
         }
     }
-
-
-    private static void encontrarInimigo() {
-        System.out.println("Um barulho ecoa! Um inimigo aparece!");
-        
-        Inimigo inimigo;
-        if (random.nextBoolean()) { 
-            inimigo = new Inimigo("Goblin", 50, 8, 5, 1, 50);
+    
+    //método genérico caso o jogo continue após o andar 5
+    private static void explorarAndarGenerico() {
+        System.out.println("\nVocê explora um corredor...");
+        int chance = random.nextInt(100); 
+        if (chance < 60) {
+            encontrarInimigo("Orc", 100, 12, 8, 2, 100, "Poção de Cura Pequena", 50);
+        } else if (chance < 85) {
+            encontrarItem("Poção de Cura Pequena", "Cura 25 HP.", "CURA:25", 1);
         } else {
-            inimigo = new Inimigo("Orc", 100, 12, 8, 2, 100);
+            encontrarArmadilha(5, 15, "Uma armadilha de urso prende seu pé!");
         }
+    }
+
+
+
+    private static void encontrarInimigo(String nome, int vida, int atk, int def, int nivel, int xp, String itemDrop, int chanceDrop) {
+        System.out.println("\nUm " + nome + " aparece!");
+        
+        Inimigo inimigo = new Inimigo(nome, vida, atk, def, nivel, xp);
 
         try {
-            if (random.nextInt(100) < 50) { 
-                inimigo.getInventario().adicionar(new Item("Poção de Cura Pequena", "Cura 25 HP.", "CURA:25", 1));
+            if (random.nextInt(100) < chanceDrop) { 
+                inimigo.getInventario().adicionar(new Item(itemDrop, "Drop de " + nome, "CURA:25", 1));
             }
         } catch (Exception e) {} 
 
@@ -262,7 +367,7 @@ public class Jogo {
         boolean vitoria = SistemaDeCombate.batalhar(jogador, inimigo); 
 
         if (vitoria) {
-            System.out.println(jogador.getNome() + " venceu a batalha!");
+            System.out.println("\n" + jogador.getNome() + " venceu a batalha!");
             //clona o inventario do inimigo para a variavel
             Inventario loot = inimigo.getInventario().clone();
             //se nao tiver vazio, adiciona no inventario do jogador
@@ -274,21 +379,13 @@ public class Jogo {
         }
     }
 
-    private static void encontrarItem() {
+    private static void encontrarItem(String nome, String desc, String efeito, int qtd) {
         try {
-            System.out.println("Você vê algo brilhando no chão! Uma bolsa)");
+            System.out.println("\nVocê vê algo brilhando no chão");
             
-            Item itemEncontrado;
-            int chanceItem = random.nextInt(100);
-            if (chanceItem < 60) {
-                itemEncontrado = new Item("Poção de Cura Pequena", "Cura 25 HP.", "CURA:25", 1);
-            } else if (chanceItem < 85) {
-                itemEncontrado = new Item("Pedra de Defesa", "Aumenta permanentemente a Defesa em 1.", "BUFF_DEFESA:1", 1);
-            } else {
-                itemEncontrado = new Item("Pergaminho de Ataque", "Aumenta permanentemente o Ataque em 2.", "BUFF_ATAQUE:2", 1);
-            }
+            Item itemEncontrado = new Item(nome, desc, efeito, qtd);
             
-            System.out.println("Você encontrou: " + itemEncontrado.getNome() + " (x1)");
+            System.out.println("Você encontrou: " + itemEncontrado.getNome() + " (x" + qtd + ")");
             //adiciona no inventario do jogador
             jogador.getInventario().adicionar(itemEncontrado);
         } catch (Exception e) {
@@ -296,17 +393,18 @@ public class Jogo {
         }
     }
 
-    private static void encontrarArmadilha() {
-        System.out.println("Você pisa numa placa de pressão! *CLICK!*");
-        System.out.println("Dardos venenosos saem da parede!");
-        int danoArmadilha = Dado.rolar(10); 
+
+    private static void encontrarArmadilha(int danoMin, int danoMax, String texto) {
+        System.out.println("\n" + texto);
+        int danoArmadilha = random.nextInt(danoMax - danoMin + 1) + danoMin; 
         
-        System.out.println("Você é atingido e recebe " + danoArmadilha + " de dano!");
+        System.out.println("Você é atingido e recebe " + danoArmadilha + " de dano");
         
-        //dano ignora defesa:
+        //dano q ignora defesa:
         int danoPuro = danoArmadilha + jogador.getDefesa();
         jogador.receberAtaque(danoPuro); 
     }
+
 
 
     public static boolean mostrarInventario(Personagem jogador) {
@@ -324,18 +422,20 @@ public class Jogo {
         String nomeItem = scanner.nextLine(); 
 
         if (nomeItem.equalsIgnoreCase("cancelar") || nomeItem.trim().isEmpty()) {
+            System.out.println();
             return false;//não gasta turno
         }
 
         Item itemParaUsar = inventario.getItem(nomeItem);
         
         if (itemParaUsar == null) {
-            System.out.println("Você não tem esse item");
+            System.out.println("\nVocê não tem esse item");
             return false; //não gastou turno
         }
 
         //lógica de efeito
         String efeito = itemParaUsar.getEfeito();
+        System.out.println(); 
         
         try {
             if (efeito.startsWith("CURA:")) {
@@ -370,9 +470,9 @@ public class Jogo {
 
     //usa o toString de personagem
     private static void verStatus() {
-        System.out.println("\n--- STATUS DO JOGADOR ---");
+        System.out.println("\n\n--- STATUS DO JOGADOR ---");
         System.out.println(jogador.toString()); 
-        System.out.println("--------------------------");
+        System.out.println("--------------------------\n");
     }
 }
 

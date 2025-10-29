@@ -60,6 +60,7 @@ public abstract class Personagem implements Cloneable {
     //setters
     public void setDefesa(int defesa) { this.defesa += defesa; }
     public void setAtaque(int ataque) { this.ataque += ataque; }
+    public void setPontosVidaMax(int vida) { this.pontosVidaMax += vida; }
 
 
 
